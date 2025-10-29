@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Bisection Method Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1f36 0%, #2d3748 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: clamp(1.8em, 5vw, 2.8em);
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: clamp(1em, 3vw, 1.2em);
+            opacity: 0.8;
+        }
+
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .calculator {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .input-section, .output-section {
+            background: rgba(45, 55, 72, 0.8);
+            padding: clamp(20px, 4vw, 30px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: clamp(1em, 2vw, 1.1em);
+        }
+
+        .input-with-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .input-with-preview {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .input-with-preview input {
+            flex: 1;
+        }
+
+        .math-preview {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-size: clamp(1em, 2vw, 1.2em);
+            background: rgba(26, 32, 44, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            min-width: 150px;
+            text-align: center;
+        }
+
+        @media (max-width: 767px) {
+            .math-preview {
+                min-width: 100%;
+            }
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #4a5568;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: rgba(26, 32, 44, 0.7);
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .scientific-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .scientific-buttons {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+        }
+
+        .sci-btn {
+            padding: 12px 8px;
+            background: rgba(74, 85, 104, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: clamp(0.9em, 2vw, 1.1em);
+            min-height: 44px;
+        }
+
+        .sci-btn:hover {
+            background: rgba(102, 126, 234, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 480px) {
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        button {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 54px;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-reset {
+            background: rgba(74, 85, 104, 0.7);
+            color: #e2e8f0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: rgba(26, 32, 44, 0.7);
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @media (min-width: 480px) {
+            .result-item {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: clamp(1em, 2vw, 1.1em);
+        }
+
+        .result-value {
+            color: #90cdf4;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            font-size: clamp(0.9em, 2vw, 1.1em);
+            word-break: break-all;
+        }
+
+        .iterations-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .iterations-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(0.75em, 1.5vw, 0.9em);
+        }
+
+        .iterations-table th,
+        .iterations-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 480px) {
+            .iterations-table th,
+            .iterations-table td {
+                padding: 8px 4px;
+            }
+        }
+
+        .iterations-table th {
+            background: rgba(102, 126, 234, 0.7);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .iterations-table tr:nth-child(even) {
+            background: rgba(45, 55, 72, 0.5);
+        }
+
+        .iterations-table tr:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .iterations-table td {
+            font-family: 'Courier New', monospace;
+        }
+
+        .graph-section {
+            background: rgba(45, 55, 72, 0.8);
+            padding: clamp(20px, 4vw, 30px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 30px;
+        }
+
+        .graph-container {
+            width: 100%;
+            height: clamp(300px, 50vh, 500px);
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(26, 32, 44, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .graph-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .graph-btn {
+            padding: 10px 15px;
+            background: rgba(74, 85, 104, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .graph-btn:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+
+        .graph-btn.active {
+            background: rgba(102, 126, 234, 0.9);
+        }
+
+        .error-message {
+            background: rgba(254, 215, 215, 0.2);
+            color: #fc8181;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #fc8181;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .success-message {
+            background: rgba(198, 246, 213, 0.2);
+            color: #68d391;
+            padding: 15px;
+            border-radius: 1010px;
+            margin-bottom: 20px;
+            border-left: 4px solid #68d391;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 640px) {
+            .step-indicator {
+                max-width: 400px;
+            }
+        }
+
+        .step {
+            width: clamp(30px, 8vw, 40px);
+            height: clamp(30px, 8vw, 40px);
+            border-radius: 50%;
+            background: rgba(74, 85, 104, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #a0aec0;
+            z-index: 2;
+            transition: all 0.3s;
+            font-size: clamp(0.8em, 2vw, 1em);
+        }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step-line {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(74, 85, 104, 0.7);
+            z-index: 1;
+        }
+
+        .section-title {
+            font-size: clamp(1.2em, 3vw, 1.5em);
+            margin-bottom: 20px;
+            color: #e2e8f0;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.5);
+            padding-bottom: 10px;
+        }
+
+        .math-font {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+        }
+
+        .input-hint {
+            font-size: 0.9em;
+            color: #a0aec0;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .input-section, .output-section, .graph-section {
+                padding: 15px;
+            }
+            
+            .scientific-buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .sci-btn {
+                padding: 10px 5px;
+                font-size: 0.8em;
+            }
+        }
+
+        /* Tablet adjustments */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .calculator {
+                gap: 20px;
+            }
+            
+            .input-section, .output-section {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Enhanced Bisection Method Calculator</h1>
+            <p>Find roots of equations with scientific precision</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active">1</div>
+            <div class="step">2</div>
+            <div class="step">3</div>
+            <div class="step">4</div>
+            <div class="step">5</div>
+            <div class="step-line"></div>
+        </div>
+
+        <div class="calculator">
+            <div class="input-section">
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+
+                <div class="form-group">
+                    <label for="functionInput">Function f(x):</label>
+                    <div class="input-with-preview">
+                        <input type="text" id="functionInput" placeholder="e.g., x^3 - x - 2" value="x^3 - x - 2">
+                        <div class="math-preview" id="mathPreview">x³ - x - 2</div>
+                    </div>
+                    <div class="input-hint">Use ^ for powers, e.g., x^2 for x². Use scientific notation like 1.23e-5 for 1.23×10⁻⁵</div>
+                    
+                    <div class="scientific-buttons">
+                        <button class="sci-btn" data-value="x^">xⁿ</button>
+                        <button class="sci-btn" data-value="sqrt(">√</button>
+                        <button class="sci-btn" data-value="sin(">sin</button>
+                        <button class="sci-btn" data-value="cos(">cos</button>
+                        <button class="sci-btn" data-value="tan(">tan</button>
+                        <button class="sci-btn" data-value="log(">ln</button>
+                        <button class="sci-btn" data-value="exp(">eˣ</button>
+                        <button class="sci-btn" data-value="abs(">|x|</button>
+                        <button class="sci-btn" data-value="π">π</button>
+                        <button class="sci-btn" data-value="e">e</button>
+                        <button class="sci-btn" data-value="(">(</button>
+                        <button class="sci-btn" data-value=")">)</button>
+                        <button class="sci-btn" data-value="+">+</button>
+                        <button class="sci-btn" data-value="-">-</button>
+                        <button class="sci-btn" data-value="*">×</button>
+                        <button class="sci-btn" data-value="/">÷</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lowerBound">Lower Bound (xℓ):</label>
+                    <input type="text" id="lowerBound" value="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="upperBound">Upper Bound (xu):</label>
+                    <input type="text" id="upperBound" value="2">
+                </div>
+
+                <div class="form-group">
+                    <label for="tolerance">Tolerance (ε):</label>
+                    <input type="text" id="tolerance" value="1e-6">
+                    <div class="input-hint">Scientific notation accepted (e.g., 1e-6 for 0.000001)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxIterations">Maximum Iterations:</label>
+                    <input type="number" id="maxIterations" value="100" min="1" max="1000">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-calculate" onclick="calculateBisection()">
+                        <i class="fas fa-calculator"></i>
+                        Calculate Root
+                    </button>
+                    <button class="btn-reset" onclick="resetCalculator()">
+                        <i class="fas fa-redo"></i>
+                        Reset
+                    </button>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating root with bisection method...</p>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <h3 class="section-title">Results</h3>
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Root Found:</span>
+                        <span class="result-value" id="rootResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Function Value at Root:</span>
+                        <span class="result-value" id="functionValue">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Iterations:</span>
+                        <span class="result-value" id="iterationsCount">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Absolute Error:</span>
+                        <span class="result-value" id="absoluteError">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Convergence Status:</span>
+                        <span class="result-value" id="convergenceStatus">-</span>
+                    </div>
+                </div>
+
+                <h4 class="section-title" style="margin-top: 30px;">Iteration Details</h4>
+                <div class="iterations-table-container">
+                    <table class="iterations-table">
+                        <thead>
+                            <tr>
+                                <th>Iteration</th>
+                                <th>xℓ</th>
+                                <th>xu</th>
+                                <th>xm</th>
+                                <th>f(xm)</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody id="iterationsTable">
+                            <!-- Iteration data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="graph-section">
+            <h3 class="section-title">Function Graph</h3>
+            <div class="graph-controls">
+                <button class="graph-btn active" id="zoomInBtn">
+                    <i class="fas fa-search-plus"></i> Zoom In
+                </button>
+                <button class="graph-btn" id="zoomOutBtn">
+                    <i class="fas fa-search-minus"></i> Zoom Out
+                </button>
+                <button class="graph-btn" id="resetViewBtn">
+                    <i class="fas fa-sync-alt"></i> Reset View
+                </button>
+                <button class="graph-btn" id="downloadGraphBtn">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+            <div class="graph-container">
+                <canvas id="graphCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced function parser with scientific notation support
+        function createFunction(expression) {
+            // Replace mathematical notations with JavaScript equivalents
+            let jsFunction = expression
+                .replace(/\^/g, '**')           // Convert ^ to **
+                .replace(/sin\(/g, 'Math.sin(')
+                .replace(/cos\(/g, 'Math.cos(')
+                .replace(/tan\(/g, 'Math.tan(')
+                .replace(/sqrt\(/g, 'Math.sqrt(')
+                .replace(/log\(/g, 'Math.log(')
+                .replace(/exp\(/g, 'Math.exp(')
+                .replace(/abs\(/g, 'Math.abs(')
+                .replace(/π/g, 'Math.PI')
+                .replace(/(?<!\w)e(?!\w)/g, 'Math.E');  // Replace standalone e with Math.E
+
+            return new Function('x', `return ${jsFunction}`);
+        }
+
+        // Convert to pretty math notation for display
+        function toMathNotation(expression) {
+            return expression
+                .replace(/\*\*/g, '^')
+                .replace(/Math\.sin\(/g, 'sin(')
+                .replace(/Math\.cos\(/g, 'cos(')
+                .replace(/Math\.tan\(/g, 'tan(')
+                .replace(/Math\.sqrt\(/g, '√(')
+                .replace(/Math\.log\(/g, 'ln(')
+                .replace(/Math\.exp\(/g, 'e^(')
+                .replace(/Math\.abs\(/g, '|')
+                .replace(/Math\.PI/g, 'π')
+                .replace(/Math\.E/g, 'e')
+                .replace(/(\d+(?:\.\d+)?)e([+-]?\d+)/g, (match, num, exp) => {
+                    return `${num}×10<sup>${exp}</sup>`;
+                })
+                .replace(/(\w+)\^(\d+)/g, (match, base, exp) => {
+                    // Convert to superscript for single-digit exponents
+                    if (exp.length === 1) {
+                        const superscripts = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+                        return base + superscripts[exp];
+                    }
+                    return base + '^' + exp;
+                });
+        }
+
+        // Parse scientific notation and regular numbers
+        function parseNumber(str) {
+            // Handle scientific notation (e.g., 1e-6, 2.5e3)
+            if (/^-?\d*\.?\d+[eE][+-]?\d+$/.test(str)) {
+                return parseFloat(str);
+            }
+            // Handle regular numbers
+            return parseFloat(str);
+        }
+
+        // Graph state management
+        let graphState = {
+            xMin: null,
+            xMax: null,
+            yMin: null,
+            yMax: null,
+            originalXMin: null,
+            originalXMax: null
+        };
+
+        function calculateBisection() {
+            // Get input values
+            const functionText = document.getElementById('functionInput').value;
+            const xlStr = document.getElementById('lowerBound').value;
+            const xuStr = document.getElementById('upperBound').value;
+            const toleranceStr = document.getElementById('tolerance').value;
+            const maxIterations = parseInt(document.getElementById('maxIterations').value);
+
+            // Reset messages
+            hideMessages();
+            showLoading();
+
+            // Parse numbers (supporting scientific notation)
+            const xl = parseNumber(xlStr);
+            const xu = parseNumber(xuStr);
+            const tolerance = parseNumber(toleranceStr);
+
+            // Validate inputs
+            if (!functionText || isNaN(xl) || isNaN(xu) || isNaN(tolerance) || isNaN(maxIterations)) {
+                showError('Please fill in all fields with valid numbers');
+                hideLoading();
+                return;
+            }
+
+            if (xl >= xu) {
+                showError('Lower bound must be less than upper bound');
+                hideLoading();
+                return;
+            }
+
+            if (tolerance <= 0) {
+                showError('Tolerance must be greater than 0');
+                hideLoading();
+                return;
+            }
+
+            try {
+                const func = createFunction(functionText);
+                
+                // Check if f(xl) * f(xu) < 0
+                const fxl = func(xl);
+                const fxu = func(xu);
+                
+                if (fxl * fxu >= 0) {
+                    showError('Function must have opposite signs at lower and upper bounds (f(xl) * f(xu) < 0)');
+                    hideLoading();
+                    return;
+                }
+
+                // Perform bisection method
+                const results = performBisection(func, xl, xu, tolerance, maxIterations);
+                displayResults(results);
+                
+                // Initialize graph state
+                graphState.xMin = xl;
+                graphState.xMax = xu;
+                graphState.originalXMin = xl;
+                graphState.originalXMax = xu;
+                
+                drawGraph(func, results.root);
+                
+            } catch (error) {
+                showError('Error in function: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        function performBisection(func, xl, xu, tolerance, maxIterations) {
+            let iterations = [];
+            let xm_old = 0;
+            let convergence = 'Maximum iterations reached';
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const xm = (xl + xu) / 2;
+                const fxm = func(xm);
+                const fxl = func(xl);
+                
+                // Calculate error
+                let error = i === 0 ? 100 : Math.abs((xm - xm_old) / xm) * 100;
+                
+                iterations.push({
+                    iteration: i + 1,
+                    xl: xl,
+                    xu: xu,
+                    xm: xm,
+                    fxm: fxm,
+                    error: error
+                });
+
+                // Check for convergence
+                if (Math.abs(fxm) < tolerance || (i > 0 && error < tolerance)) {
+                    convergence = 'Converged';
+                    break;
+                }
+
+                // Update bounds
+                if (fxl * fxm < 0) {
+                    xu = xm;
+                } else {
+                    xl = xm;
+                }
+                
+                xm_old = xm;
+            }
+
+            const lastIteration = iterations[iterations.length - 1];
+            return {
+                root: lastIteration.xm,
+                functionValue: lastIteration.fxm,
+                iterations: iterations,
+                absoluteError: lastIteration.error,
+                convergence: convergence
+            };
+        }
+
+        function displayResults(results) {
+            hideLoading();
+            
+            // Format numbers with scientific notation when appropriate
+            function formatNumber(num) {
+                if (Math.abs(num) < 1e-4 || Math.abs(num) > 1e6) {
+                    return num.toExponential(6);
+                }
+                return num.toFixed(10);
+            }
+            
+            // Update main results
+            document.getElementById('rootResult').textContent = formatNumber(results.root);
+            document.getElementById('functionValue').textContent = formatNumber(results.functionValue);
+            document.getElementById('iterationsCount').textContent = results.iterations.length;
+            document.getElementById('absoluteError').textContent = results.absoluteError.toFixed(10) + '%';
+            document.getElementById('convergenceStatus').textContent = results.convergence;
+
+            // Update iterations table
+            const tableBody = document.getElementById('iterationsTable');
+            tableBody.innerHTML = '';
+            
+            results.iterations.forEach(iter => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${iter.iteration}</td>
+                    <td>${formatNumber(iter.xl)}</td>
+                    <td>${formatNumber(iter.xu)}</td>
+                    <td>${formatNumber(iter.xm)}</td>
+                    <td>${formatNumber(iter.fxm)}</td>
+                    <td>${iter.error.toFixed(6)}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            showSuccess('Root found successfully!');
+        }
+
+        function drawGraph(func, root) {
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Set graph parameters
+            const padding = 60;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+            
+            // Find function range for scaling
+            let yMin = Infinity;
+            let yMax = -Infinity;
+            const samples = 400; // Increased samples for better quality
+            
+            for (let i = 0; i <= samples; i++) {
+                const x = graphState.xMin + (i / samples) * (graphState.xMax - graphState.xMin);
+                try {
+                    const y = func(x);
+                    if (isFinite(y)) {
+                        yMin = Math.min(yMin, y);
+                        yMax = Math.max(yMax, y);
+                    }
+                } catch (e) {}
+            }
+            
+            // Add some padding to y range
+            const yRange = yMax - yMin;
+            if (yRange === 0) {
+                yMin -= 1;
+                yMax += 1;
+            } else {
+                yMin -= yRange * 0.1;
+                yMax += yRange * 0.1;
+            }
+            
+            graphState.yMin = yMin;
+            graphState.yMax = yMax;
+            
+            // Coordinate conversion functions
+            function toCanvasX(x) {
+                return padding + ((x - graphState.xMin) / (graphState.xMax - graphState.xMin)) * graphWidth;
+            }
+            
+            function toCanvasY(y) {
+                return height - padding - ((y - yMin) / (yMax - yMin)) * graphHeight;
+            }
+            
+            // Draw grid with better styling
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines
+            const xStep = calculateStepSize(graphState.xMin, graphState.xMax);
+            for (let x = Math.ceil(graphState.xMin / xStep) * xStep; x <= graphState.xMax; x += xStep) {
+                if (Math.abs(x) < 1e-10) continue; // Skip near-zero to avoid axis duplication
+                const canvasX = toCanvasX(x);
+                ctx.beginPath();
+                ctx.moveTo(canvasX, padding);
+                ctx.lineTo(canvasX, height - padding);
+                ctx.stroke();
+                
+                // X-axis labels
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(x.toFixed(2), canvasX, height - padding + 20);
+            }
+            
+            // Horizontal grid lines
+            const yStep = calculateStepSize(yMin, yMax);
+            for (let y = Math.ceil(yMin / yStep) * yStep; y <= yMax; y += yStep) {
+                if (Math.abs(y) < 1e-10) continue;
+                const canvasY = toCanvasY(y);
+                ctx.beginPath();
+                ctx.moveTo(padding, canvasY);
+                ctx.lineTo(width - padding, canvasY);
+                ctx.stroke();
+                
+                // Y-axis labels
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(y.toFixed(2), padding - 10, canvasY + 4);
+            }
+            
+            // Draw axes with better visibility
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            if (yMin <= 0 && yMax >= 0) {
+                const y0 = toCanvasY(0);
+                ctx.beginPath();
+                ctx.moveTo(padding, y0);
+                ctx.lineTo(width - padding, y0);
+                ctx.stroke();
+            }
+            
+            // Y-axis
+            if (graphState.xMin <= 0 && graphState.xMax >= 0) {
+                const x0 = toCanvasX(0);
+                ctx.beginPath();
+                ctx.moveTo(x0, padding);
+                ctx.lineTo(x0, height - padding);
+                ctx.stroke();
+            }
+            
+            // Draw function with anti-aliasing
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            let firstPoint = true;
+            for (let i = 0; i <= graphWidth; i++) {
+                const x = graphState.xMin + (i / graphWidth) * (graphState.xMax - graphState.xMin);
+                try {
+                    const y = func(x);
+                    if (isFinite(y)) {
+                        const canvasX = toCanvasX(x);
+                        const canvasY = toCanvasY(y);
+                        
+                        if (firstPoint) {
+                            ctx.moveTo(canvasX, canvasY);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(canvasX, canvasY);
+                        }
+                    } else {
+                        firstPoint = true;
+                    }
+                } catch (e) {
+                    firstPoint = true;
+                }
+            }
+            ctx.stroke();
+            
+            // Draw root point with highlight
+            ctx.fillStyle = '#ff4444';
+            ctx.beginPath();
+            const rootX = toCanvasX(root);
+            const rootY = toCanvasY(func(root));
+            ctx.arc(rootX, rootY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add glow effect to root point
+            ctx.shadowColor = '#ff4444';
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Draw root label with background
+            ctx.fillStyle = 'rgba(26, 32, 44, 0.9)';
+            ctx.fillRect(rootX + 10, rootY - 25, 120, 20);
+            ctx.fillStyle = '#ff4444';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Root: ${root.toFixed(6)}`, rootX + 15, rootY - 10);
+            
+            // Draw axis labels
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('x', width - padding + 30, toCanvasY(0) + 5);
+            ctx.textAlign = 'left';
+            ctx.fillText('f(x)', toCanvasX(0) + 10, padding - 20);
+        }
+
+        // Helper function to calculate appropriate step size for grid
+        function calculateStepSize(min, max) {
+            const range = max - min;
+            const step = Math.pow(10, Math.floor(Math.log10(range)));
+            if (range / step > 10) return step * 2;
+            if (range / step < 5) return step / 2;
+            return step;
+        }
+
+        // Graph control functions
+        function zoomIn() {
+            const range = graphState.xMax - graphState.xMin;
+            graphState.xMin += range * 0.1;
+            graphState.xMax -= range * 0.1;
+            redrawGraph();
+        }
+
+        function zoomOut() {
+            const range = graphState.xMax - graphState.xMin;
+            graphState.xMin -= range * 0.1;
+            graphState.xMax += range * 0.1;
+            redrawGraph();
+        }
+
+        function resetView() {
+            graphState.xMin = graphState.originalXMin;
+            graphState.xMax = graphState.originalXMax;
+            redrawGraph();
+        }
+
+        function downloadGraph() {
+            const canvas = document.getElementById('graphCanvas');
+            const link = document.createElement('a');
+            link.download = 'bisection-method-graph.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function redrawGraph() {
+            try {
+                const func = createFunction(document.getElementById('functionInput').value);
+                const root = parseFloat(document.getElementById('rootResult').textContent) || 0;
+                drawGraph(func, root);
+            } catch (e) {
+                // If redrawing fails, keep the current graph
+            }
+        }
+
+        function resetCalculator() {
+            document.getElementById('functionInput').value = 'x^3 - x - 2';
+            document.getElementById('lowerBound').value = '1';
+            document.getElementById('upperBound').value = '2';
+            document.getElementById('tolerance').value = '1e-6';
+            document.getElementById('maxIterations').value = '100';
+            
+            // Update preview
+            updateMathPreview();
+            
+            hideMessages();
+            
+            // Clear results
+            document.getElementById('rootResult').textContent = '-';
+            document.getElementById('functionValue').textContent = '-';
+            document.getElementById('iterationsCount').textContent = '-';
+            document.getElementById('absoluteError').textContent = '-';
+            document.getElementById('convergenceStatus').textContent = '-';
+            document.getElementById('iterationsTable').innerHTML = '';
+            
+            // Clear graph
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function updateMathPreview() {
+            const functionText = document.getElementById('functionInput').value;
+            const previewElement = document.getElementById('mathPreview');
+            previewElement.innerHTML = toMathNotation(functionText) || 'f(x)';
+        }
+
+        // Initialize with example
+        window.onload = function() {
+            const canvas = document.getElementById('graphCanvas');
+            const resizeCanvas = () => {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            };
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Set up scientific buttons
+            document.querySelectorAll('.sci-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const functionInput = document.getElementById('functionInput');
+                    const value = this.getAttribute('data-value');
+                    
+                    // Insert at cursor position
+                    const start = functionInput.selectionStart;
+                    const end = functionInput.selectionEnd;
+                    const currentValue = functionInput.value;
+                    
+                    functionInput.value = currentValue.substring(0, start) + value + currentValue.substring(end);
+                    functionInput.selectionStart = functionInput.selectionEnd = start + value.length;
+                    functionInput.focus();
+                    
+                    updateMathPreview();
+                });
+            });
+            
+            // Set up graph controls
+            document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+            document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+            document.getElementById('resetViewBtn').addEventListener('click', resetView);
+            document.getElementById('downloadGraphBtn').addEventListener('click', downloadGraph);
+            
+            // Update math preview when function input changes
+            document.getElementById('functionInput').addEventListener('input', updateMathPreview);
+            
+            // Initialize math preview
+            updateMathPreview();
+        };
+    </script>
+</body>
+</html>
